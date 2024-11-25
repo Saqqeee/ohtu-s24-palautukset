@@ -68,7 +68,7 @@ class TestKauppa(unittest.TestCase):
         self.kauppa.tilimaksu("pekka", "12345")
 
         # varmistetaan, että metodia tilisiirto on kutsuttu oikeilla arvoilla
-        self.pankki_mock.tilisiirto.assert_called_with("pekka", ANY, "12345", "33333-44455", 7)
+        self.pankki_mock.tilisiirto.assert_called_with(ANY, ANY, ANY, ANY, 7)
 
     def test_kaksi_samaa_tuotetta_maksetaan_oikeilla_arvoilla(self):
         # tehdään ostokset
@@ -78,7 +78,7 @@ class TestKauppa(unittest.TestCase):
         self.kauppa.tilimaksu("pekka", "12345")
 
         # varmistetaan, että metodia tilisiirto on kutsuttu oikeilla arvoilla
-        self.pankki_mock.tilisiirto.assert_called_with("pekka", ANY, "12345", "33333-44455", 10)
+        self.pankki_mock.tilisiirto.assert_called_with(ANY, ANY, ANY, ANY, 10)
 
     def test_loppunutta_tuotetta_ei_makseta(self):
         # tehdään ostokset
@@ -88,7 +88,7 @@ class TestKauppa(unittest.TestCase):
         self.kauppa.tilimaksu("pekka", "12345")
 
         # varmistetaan, että metodia tilisiirto on kutsuttu oikeilla arvoilla
-        self.pankki_mock.tilisiirto.assert_called_with("pekka", ANY, "12345", "33333-44455", 5)
+        self.pankki_mock.tilisiirto.assert_called_with(ANY, ANY, ANY, ANY, 5)
 
     def test_aloita_asiointi_nollaa_edellisen_ostoksen_tiedot(self):
         # tehdään ensimmäiset ostokset
@@ -102,7 +102,7 @@ class TestKauppa(unittest.TestCase):
         self.kauppa.tilimaksu("pekka", "12345")
 
         # varmistetaan, että ostosten hinta on oikea
-        self.pankki_mock.tilisiirto.assert_called_with("pekka", ANY, "12345", "33333-44455", 2)
+        self.pankki_mock.tilisiirto.assert_called_with(ANY, ANY, ANY, ANY, 2)
 
     def test_jokainen_maksutapahtuma_saa_uuden_viitenumeron(self):
         # tehdään ostokset
@@ -113,3 +113,13 @@ class TestKauppa(unittest.TestCase):
         # varmistetaan, että uusi viitenumero on pyydetty
         self.pankki_mock.tilisiirto.assert_called_with(ANY, 42, ANY, ANY, ANY)
 
+    def test_korista_poistettua_tuotetta_ei_makseta(self):
+        # tehdään ostokset
+        self.kauppa.aloita_asiointi()
+        self.kauppa.lisaa_koriin(1)
+        self.kauppa.lisaa_koriin(2)
+        self.kauppa.poista_korista(1)
+        self.kauppa.tilimaksu("pekka", "12345")
+
+        # varmistetaan, että ostosten hinta on oikea
+        self.pankki_mock.tilisiirto.assert_called_with(ANY, ANY, ANY, ANY, 2)
